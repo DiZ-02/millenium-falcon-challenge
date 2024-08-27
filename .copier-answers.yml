@@ -1,0 +1,20 @@
+# Changes here will be overwritten by Copier
+_commit: 1.2.6
+_src_path: gh:pawamoy/copier-pdm
+author_email: thibault.jacquemin1990@gmail.com
+author_fullname: Thibault Jacquemin
+author_username: DiZ-02
+copyright_date: '2024'
+copyright_holder: Thibault Jacquemin
+copyright_holder_email: thibault.jacquemin1990@gmail.com
+copyright_license: MIT License
+insiders: false
+project_description: Developer Technical Test @ Dataiku
+project_name: Millenium Falcon Challenge
+python_package_command_line_name: give-me-the-odds
+python_package_distribution_name: millenium-falcon-challenge
+python_package_import_name: falcon
+repository_name: millenium-falcon-challenge
+repository_namespace: DiZ-02
+repository_provider: github.com
+

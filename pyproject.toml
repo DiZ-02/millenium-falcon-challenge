@@ -1,0 +1,117 @@
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[project]
+name = "millenium-falcon-challenge"
+description = "Developer Technical Test @ Dataiku"
+authors = [{name = "Thibault Jacquemin", email = "thibault.jacquemin1990@gmail.com"}]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = []
+dynamic = ["version"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Documentation",
+    "Topic :: Software Development",
+    "Topic :: Utilities",
+    "Typing :: Typed",
+]
+dependencies = [
+    "fastapi>=0.112.2",
+    "uvicorn>=0.30.6",
+    "nicegui>=1.4.10",
+    # Fix vulnerability PVE-2024-99777
+    "markdown2>=2.4.11",
+]
+
+[project.urls]
+Homepage = "https://DiZ-02.github.io/millenium-falcon-challenge"
+Documentation = "https://DiZ-02.github.io/millenium-falcon-challenge"
+Changelog = "https://DiZ-02.github.io/millenium-falcon-challenge/changelog"
+Repository = "https://github.com/DiZ-02/millenium-falcon-challenge"
+Issues = "https://github.com/DiZ-02/millenium-falcon-challenge/issues"
+Discussions = "https://github.com/DiZ-02/millenium-falcon-challenge/discussions"
+#Gitter = "https://gitter.im/millenium-falcon-challenge/community"
+Funding = "https://github.com/sponsors/DiZ-02"
+
+[project.scripts]
+give-me-the-odds = "falcon.cli:main"
+
+[tool.pdm]
+version = {source = "scm"}
+plugins = [
+    "pdm-multirun",
+]
+
+[tool.pdm.build]
+package-dir = "src"
+editable-backend = "editables"
+
+[tool.pdm.dev-dependencies]
+duty = ["duty>=0.10"]
+ci-quality = ["millenium-falcon-challenge[duty,docs,quality,typing,security]"]
+ci-tests = ["millenium-falcon-challenge[duty,tests]"]
+docs = [
+    "black>=23.9",
+    "markdown-callouts>=0.3",
+    "markdown-exec>=1.7",
+    "mkdocs>=1.5",
+    "mkdocs-coverage>=1.0",
+    "mkdocs-gen-files>=0.5",
+    "mkdocs-git-committers-plugin-2>=1.2",
+    "mkdocs-literate-nav>=0.6",
+    "mkdocs-material>=9.4",
+    "mkdocs-minify-plugin>=0.7",
+    "mkdocstrings[python]>=0.23",
+    "tomli>=2.0; python_version < '3.11'",
+]
+maintain = [
+    "black>=23.9",
+    "blacken-docs>=1.16",
+    "git-changelog>=2.3",
+]
+quality = [
+    "ruff>=0.0",
+]
+tests = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "pytest-randomly>=3.15",
+    "pytest-xdist>=3.3",
+]
+typing = [
+    "mypy>=1.5",
+    "types-markdown>=3.5",
+    "types-pyyaml>=6.0",
+]
+security = [
+    "safety>=2.3",
+]
+
+[tool.pdm.resolution]
+# Uncomment the line below if orjson is not available in your system.
+# Nicegui has a fallback on json builtin module.
+excludes = ["orjson"]
+
+[tool.pdm.resolution.overrides]
+# Nicegui will lift this dependency in 2.0.
+fastapi = ">=0.112.2"
+# Fix vulnerability PVE-2024-99777
+markdown2 = ">=2.4.11"
+
+[tool.pdm.scripts]
+_.env_file = ".env"
+_.working_dir = "src"
+dev = "uvicorn falcon.api:app --reload --log-level debug --port 8000"
+prod = "uvicorn falcon.api:app --workers 1 --log-level info --port 80"
