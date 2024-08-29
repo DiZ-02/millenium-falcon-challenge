@@ -18,6 +18,8 @@ import sys
 from typing import Any
 
 from falcon import debug
+from falcon.config import init_config
+from falcon.path_service import PathService
 
 
 class _DebugInfo(argparse.Action):
@@ -38,6 +40,7 @@ def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="give-me-the-odds")
     parser.add_argument("-V", "--version", action="version", version=f"%(prog)s {debug.get_version()}")
     parser.add_argument("--debug-info", action=_DebugInfo, help="Print debug information.")
+    parser.add_argument("cfg_file", action="store", help="Configuration of the application (millennium-falcon.json)")
     return parser
 
 
@@ -54,5 +57,6 @@ def main(args: list[str] | None = None) -> int:
     """
     parser = get_parser()
     opts = parser.parse_args(args=args)
-    print(opts)
+    config = init_config(opts.cfg_file)
+    service = PathService(config.routes_db)
     return 0
