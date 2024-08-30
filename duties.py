@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 import sys
-from collections.abc import Iterator
 from contextlib import contextmanager
 from importlib.metadata import version as pkgversion
 from pathlib import Path
@@ -14,6 +13,8 @@ from duty import duty
 from duty.callables import coverage, lazy, mkdocs, mypy, pytest, ruff, safety
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from duty.context import Context
 
 
@@ -26,7 +27,7 @@ PTY = not WINDOWS and not CI
 MULTIRUN = os.environ.get("PDM_MULTIRUN", "0") == "1"
 
 
-def pyprefix(title: str) -> str:  # noqa: D103
+def pyprefix(title: str) -> str:
     if MULTIRUN:
         prefix = f"(python{sys.version_info.major}.{sys.version_info.minor})"
         return f"{prefix:14}{title}"
@@ -34,7 +35,7 @@ def pyprefix(title: str) -> str:  # noqa: D103
 
 
 @contextmanager
-def material_insiders() -> Iterator[bool]:  # noqa: D103
+def material_insiders() -> Iterator[bool]:
     if "+insiders" in pkgversion("mkdocs-material"):
         os.environ["MATERIAL_INSIDERS"] = "true"
         try:

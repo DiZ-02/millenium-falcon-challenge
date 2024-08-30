@@ -3,6 +3,8 @@
 Developer Technical Test @ Dataiku
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 
 __all__: list[str] = []

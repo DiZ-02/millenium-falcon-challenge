@@ -13,7 +13,7 @@ select = [
     "C",
     "C4",
     "COM",
-    "D",
+#    "D",
     "DTZ",
     "E",
     "ERA",

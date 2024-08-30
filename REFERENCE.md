@@ -122,7 +122,7 @@ $ give-me-the-odds example1/millennium-falcon.json example1/empire.json
 ## Examples
 
 ### Example 1
-**[universe.db](examples/example1/universe.db?raw=true)** (click to download)
+**[universe.db](https://github.com/dataiku/millenium-falcon-challenge/blob/master/examples/example1/universe.db?raw=true)** (click to download)
 | ORIGIN   | DESTINATION | TRAVEL_TIME |
 |----------|-------------|-------------|
 | Tatooine | Dagobah     | 6           |
@@ -131,7 +131,7 @@ $ give-me-the-odds example1/millennium-falcon.json example1/empire.json
 | Hoth     | Endor       | 1           |
 | Tatooine | Hoth        | 6           |
 
-**[millennium-falcon.json](examples/example1/millennium-falcon.json?raw=true)** (click to download)
+**[millennium-falcon.json](https://github.com/dataiku/millenium-falcon-challenge/blob/master/examples/example1/millennium-falcon.json?raw=true)** (click to download)
 ```
 {
   "autonomy": 6,
@@ -140,7 +140,7 @@ $ give-me-the-odds example1/millennium-falcon.json example1/empire.json
   "routes_db": "universe.db"
 }
 ```
-**[empire.json](examples/example1/empire.json?raw=true)** (click to download)
+**[empire.json](https://github.com/dataiku/millenium-falcon-challenge/blob/master/examples/example1/empire.json?raw=true)** (click to download)
 ```
 {
   "countdown": 7, 
@@ -155,11 +155,11 @@ $ give-me-the-odds example1/millennium-falcon.json example1/empire.json
 The application should display 0% as The Millennium Falcon cannot go from Tatooine to Endor in 7 days or less (the Millennium Falcon must refuel for 1 day on either Dagobah or Hoth).
 
 ### Example 2
-**[universe.db](examples/example2/universe.db?raw=true)** same as above
+**[universe.db](https://github.com/dataiku/millenium-falcon-challenge/blob/master/examples/example2/universe.db?raw=true)** same as above
 
-**[millennium-falcon.json](examples/example2/millennium-falcon.json?raw=true)**: same as above
+**[millennium-falcon.json](https://github.com/dataiku/millenium-falcon-challenge/blob/master/examples/example2/millennium-falcon.json?raw=true)**: same as above
 
-**[empire.json](examples/example2/empire.json?raw=true)** (click to download)
+**[empire.json](https://github.com/dataiku/millenium-falcon-challenge/blob/master/examples/example2/empire.json?raw=true)** (click to download)
 ```
 {
   "countdown": 8, 
@@ -177,11 +177,11 @@ The application should display 81% as The Millennium Falcon can go from Tatooine
 - Travel from Hoth to Endor
 
 ### Example 3
-**[universe.db](examples/example3/universe.db?raw=true)** same as above
+**[universe.db](https://github.com/dataiku/millenium-falcon-challenge/blob/master/examples/example3/universe.db?raw=true)** same as above
 
-**[millennium-falcon.json](examples/example3/millennium-falcon.json?raw=true)**: same as above
+**[millennium-falcon.json](https://github.com/dataiku/millenium-falcon-challenge/blob/master/examples/example3/millennium-falcon.json?raw=true)**: same as above
 
-**[empire.json](examples/example3/empire.json?raw=true)**
+**[empire.json](https://github.com/dataiku/millenium-falcon-challenge/blob/master/examples/example3/empire.json?raw=true)**
 ```
 {
   "countdown": 9, 
@@ -200,11 +200,11 @@ The application should display 90% as The Millennium Falcon can go from Tatooine
 - Travel from Hoth to Endor
 
 ### Example 4
-**[universe.db](examples/example4/universe.db?raw=true)** same as above
+**[universe.db](https://github.com/dataiku/millenium-falcon-challenge/blob/master/examples/example4/universe.db?raw=true)** same as above
 
-**[millennium-falcon.json](examples/example4/millennium-falcon.json?raw=true)**: same as above
+**[millennium-falcon.json](https://github.com/dataiku/millenium-falcon-challenge/blob/master/examples/example4/millennium-falcon.json?raw=true)**: same as above
 
-**[empire.json](examples/example4/empire.json?raw=true)**
+**[empire.json](https://github.com/dataiku/millenium-falcon-challenge/blob/master/examples/example4/empire.json?raw=true)**
 ```
 {
   "countdown": 10, 

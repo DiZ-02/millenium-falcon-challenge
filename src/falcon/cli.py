@@ -57,5 +57,5 @@ def main(args: list[str] | None = None) -> int:
     """
     parser = get_parser()
     opts = parser.parse_args(args=args)
-    config = init(opts.cfg_file, opts.input_file)
+    init(opts.cfg_file, opts.input_file)
     return 0

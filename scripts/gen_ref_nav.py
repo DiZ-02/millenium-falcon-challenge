@@ -24,6 +24,7 @@ for path in sorted(src.rglob("*.py")):
     elif parts[-1].startswith("_"):
         continue
 
+    print(path, module_path, parts)
     nav_parts = [f"{mod_symbol} {part}" for part in parts]
     nav[tuple(nav_parts)] = doc_path.as_posix()
 

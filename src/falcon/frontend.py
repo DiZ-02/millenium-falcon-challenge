@@ -13,7 +13,7 @@ from falcon.path_service import get_service
 logger = getLogger(__name__)
 
 
-def json_file_handler(event: events.UploadEventArguments, element: ContentElement):
+def json_file_handler(event: events.UploadEventArguments, element: ContentElement) -> None:
     text = event.content.read().decode("utf-8", errors="replace")
     try:
         communication = Communication.model_validate_json(text)
@@ -28,12 +28,12 @@ def json_file_handler(event: events.UploadEventArguments, element: ContentElemen
 
 def init(fastapi_app: FastAPI) -> None:
     @ui.page("/")
-    def show():
+    def show() -> None:
         with ui.header().classes("items-center justify-between"):
             ui.label("Millenium Falcon Challenge")
 
             # NOTE dark mode will be persistent for each user across tabs and server restarts
-            def toggle_page_mode(e: ClickEventArguments):
+            def toggle_page_mode(e: ClickEventArguments) -> None:  # noqa: ARG001
                 app.storage.user["dark_mode"] = not app.storage.user["dark_mode"]
 
             dark_mode = ui.dark_mode()
@@ -55,5 +55,5 @@ def init(fastapi_app: FastAPI) -> None:
     ui.run_with(
         fastapi_app,
         mount_path="/gui",  # NOTE this can be omitted if you want the paths passed to @ui.page to be at the root
-        storage_secret="pick your private secret here",  # NOTE setting a secret is optional but allows for persistent storage per user
+        storage_secret="pick your private secret here",  # noqa: S106 # NOTE setting a secret is optional but allows for persistent storage per user
     )

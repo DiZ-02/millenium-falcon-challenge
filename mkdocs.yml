@@ -4,7 +4,7 @@ site_url: "https://DiZ-02.github.io/millenium-falcon-challenge"
 repo_url: "https://github.com/DiZ-02/millenium-falcon-challenge"
 repo_name: "DiZ-02/millenium-falcon-challenge"
 site_dir: "site"
-watch: [mkdocs.yml, README.md, CONTRIBUTING.md, CHANGELOG.md, DESCRIPTION.md, src/falcon]
+watch: [mkdocs.yml, README.md, CONTRIBUTING.md, CHANGELOG.md, REFERENCE.md, STRUCTURE.md, src/falcon]
 copyright: Copyright &copy; 2024 Thibault Jacquemin
 edit_uri: edit/main/docs/
 
@@ -16,6 +16,8 @@ validation:
 nav:
 - Home:
   - Overview: index.md
+  - Reference: reference.md
+  - Structure: structure.md
   - Changelog: changelog.md
   - Credits: credits.md
   - License: license.md

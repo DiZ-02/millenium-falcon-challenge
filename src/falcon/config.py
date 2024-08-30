@@ -14,8 +14,7 @@ logger = getLogger(__name__)
 def search_file(filepath: Path, folders: list[Path]) -> Path:
     """Search for a file at a given Path, then in folder list in order."""
     if not filepath.exists():
-        for folder in folders:
-            folder = Path(folder)
+        for folder in map(Path, folders):
             if not folder.is_dir():
                 continue
             if folder.joinpath(filepath).exists():
@@ -27,12 +26,16 @@ def search_file(filepath: Path, folders: list[Path]) -> Path:
     raise FileNotFoundError
 
 
-def parse_file[M: BaseModel](filepath: str | Path, model: type[M], default: M | None = None) -> M | None:
+def parse_file[M: BaseModel](  # type: ignore[valid-type]
+    filepath: str | Path,
+    model: type[M],  # type: ignore[name-defined]
+    default: M | None = None,  # type: ignore[name-defined]
+) -> M | None:  # type: ignore[name-defined]
     filepath, inst = Path(filepath), None
     try:
         with filepath.open() as file:
             inst = model.model_validate_json(file.read())
-    except Exception as error:
+    except Exception as error:  # noqa: BLE001
         msg = f"Didn't manage to read given file: {filepath}."
         msg += f"\nUnexpected {error=}"
         if default is not None:
@@ -43,7 +46,7 @@ def parse_file[M: BaseModel](filepath: str | Path, model: type[M], default: M | 
 
 def init_config(cfg_path: str | Path) -> Falcon:
     cfg_path = Path(cfg_path)
-    cfg: Falcon = parse_file(cfg_path, Falcon, Falcon())
+    cfg: Falcon = parse_file(cfg_path, Falcon, Falcon())  # type: ignore[assignment]
 
     try:
         cfg.routes_db = search_file(cfg.routes_db, [cfg_path.parent, DB_DIR])
