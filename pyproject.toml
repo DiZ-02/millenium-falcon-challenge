@@ -8,7 +8,7 @@ description = "Developer Technical Test @ Dataiku"
 authors = [{name = "Thibault Jacquemin", email = "thibault.jacquemin1990@gmail.com"}]
 license = {text = "MIT"}
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 keywords = []
 dynamic = ["version"]
 classifiers = [
@@ -32,7 +32,7 @@ dependencies = [
     "uvicorn>=0.30.6",
     "nicegui>=1.4.10",
     # Fix vulnerability PVE-2024-99777
-    "markdown2>=2.4.11",
+#    "markdown2>=2.4.11",
 ]
 
 [project.urls]
@@ -112,6 +112,6 @@ markdown2 = ">=2.4.11"
 
 [tool.pdm.scripts]
 _.env_file = ".env"
-_.working_dir = "src"
-dev = "uvicorn falcon.api:app --reload --log-level debug --port 8000"
-prod = "uvicorn falcon.api:app --workers 1 --log-level info --port 80"
+#_.working_dir = "src"
+dev.cmd = "uvicorn falcon.api:app --reload --log-level debug --port 8000"
+prod.cmd = "uvicorn falcon.api:app --workers 1 --log-level info --port 80"

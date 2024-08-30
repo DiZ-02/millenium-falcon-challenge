@@ -1,23 +1,83 @@
+import sqlite3
 from logging import getLogger
 from pathlib import Path
 
-from falcon import DB_DIR
-from falcon.models import Falcon, search_file
+from pydantic import BaseModel
+
+from falcon import DB_DIR, DB_PLACEHOLDER
+from falcon.models import Communication, Falcon, Route
+from falcon.path_service import get_service
 
 logger = getLogger(__name__)
 
 
+def search_file(filepath: Path, folders: list[Path]) -> Path:
+    """Search for a file at a given Path, then in folder list in order."""
+    if not filepath.exists():
+        for folder in folders:
+            folder = Path(folder)
+            if not folder.is_dir():
+                continue
+            if folder.joinpath(filepath).exists():
+                filepath = folder.joinpath(filepath)
+                break
+
+    if filepath.is_file():
+        return filepath
+    raise FileNotFoundError
+
+
+def parse_file[M: BaseModel](filepath: str | Path, model: type[M], default: M | None = None) -> M | None:
+    filepath, inst = Path(filepath), None
+    try:
+        with filepath.open() as file:
+            inst = model.model_validate_json(file.read())
+    except Exception as error:
+        msg = f"Didn't manage to read given file: {filepath}."
+        msg += f"\nUnexpected {error=}"
+        if default is not None:
+            msg += f"Using default value {default}."
+        logger.warning(msg)
+    return inst if inst is not None else default
+
+
 def init_config(cfg_path: str | Path) -> Falcon:
     cfg_path = Path(cfg_path)
-    try:
-        with cfg_path.open() as cfg_file:
-            cfg = Falcon.model_validate_json(cfg_file.read())
-    except Exception as error:
-        cfg = Falcon()
-        logger.warning(
-            f"Didn't manage to read given file: {cfg_path}.\nUnexpected {error=}\nLoading empty config...",
-        )
+    cfg: Falcon = parse_file(cfg_path, Falcon, Falcon())
 
-    cfg.routes_db = search_file(cfg.routes_db, [cfg_path.parent, DB_DIR])
-    logger.info(f"Configuration loaded: {cfg.dict()}")
+    try:
+        cfg.routes_db = search_file(cfg.routes_db, [cfg_path.parent, DB_DIR])
+    except FileNotFoundError:
+        cfg.routes_db = DB_PLACEHOLDER
+        logger.warning(
+            f"DB file not found: {cfg.routes_db}.\nUsing empty database...",
+        )
+    logger.info(f"Configuration loaded:\n{cfg.dict()}")
     return cfg
+
+
+def fetch_routes_from_db(routes_db: Path) -> list[Route]:
+    # TODO: Extract this into a service
+    logger.info(f"Fetching routes from database {routes_db}")
+    with sqlite3.connect(routes_db) as db:
+        return [Route.from_list(row) for row in db.cursor().execute("SELECT * FROM routes").fetchall()]
+
+
+def init(cfg_path: str | Path, input_file: str | Path | None = None) -> Falcon:
+    cfg_path = Path(cfg_path)
+    config = init_config(cfg_path)
+    routes = fetch_routes_from_db(config.routes_db)
+    service = get_service()
+    service.add_graph(routes)
+
+    if input_file:
+        try:
+            input_file = Path(input_file)
+            input_file = search_file(input_file, [cfg_path.parent, DB_DIR])
+            if input_ := parse_file(input_file, Communication):
+                service.add_weights(input_)
+        except FileNotFoundError:
+            # TODO: Add placeholder for input file to demo the app?
+            logger.warning(f"Input file not found: {input_file}.")
+
+    return config
