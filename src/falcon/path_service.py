@@ -1,12 +1,13 @@
 from logging import getLogger
 
-from falcon.models import Communication, Route
+from falcon.models import Communication, PathResponse, Route
 
 logger = getLogger(__name__)
 
 
 class PathService:
     COMMON_WEIGHT = 1
+    SUCCESS_CHANCE = 0.9
 
     def __init__(self):
         self.graph = {}
@@ -27,6 +28,15 @@ class PathService:
             self.weights.setdefault(hunter.planet, {})[hunter.day] = self.COMMON_WEIGHT
         logger.info(f"{len(communication.bounty_hunters)} weights added.")
         return self.weights
+
+    def get_probability(self, encounters: int) -> float:
+        return self.SUCCESS_CHANCE**encounters
+
+    async def compute_odds(self) -> PathResponse:
+        if not self.graph:
+            raise ValueError("A graph is required to search for a path.")
+        encounters = 0
+        return PathResponse(odds=self.get_probability(encounters))
 
 
 def get_service() -> PathService:

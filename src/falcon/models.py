@@ -2,7 +2,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Self
 
-from pydantic import BaseModel, PositiveInt, StrictStr
+from pydantic import BaseModel, PositiveFloat, PositiveInt, StrictStr
 
 
 class Falcon(BaseModel):
@@ -30,3 +30,7 @@ class BountyHunter(BaseModel):
 class Communication(BaseModel):
     countdown: PositiveInt
     bounty_hunters: list[BountyHunter]
+
+
+class PathResponse(BaseModel):
+    odds: PositiveFloat

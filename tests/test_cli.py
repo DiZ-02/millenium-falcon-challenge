@@ -2,14 +2,20 @@
 
 from __future__ import annotations
 
+from unittest.mock import Mock, patch
+
 import pytest
 
 from falcon import cli, debug
 
 
-def test_main() -> None:
+@patch("falcon.cli.init")
+def test_main(mock_init: Mock) -> None:
     """Basic CLI test."""
-    assert cli.main([]) == 0
+    mock_init.side_effect = SystemExit(0)
+    with pytest.raises(SystemExit):
+        assert cli.main(["database.db", "input.txt"]) == 0
+    mock_init.assert_called_once_with("database.db", "input.txt")
 
 
 def test_show_help(capsys: pytest.CaptureFixture) -> None:
