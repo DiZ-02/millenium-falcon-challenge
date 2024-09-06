@@ -19,9 +19,10 @@ config = init(os.environ.get("JSON_CFG_PATH", "placeholder"))
 frontend.init(app)
 
 
-HOME_RESPONSE_FMT = """<html>
-Go to <a>{0}/docs</a> for API docs.
-Go to <a>{0}/gui</a> for user interface.
+HOME_RESPONSE_FMT = """<!doctype html>
+<html lang="en">
+  <div>Click <a href="{0}/docs">here</a> for API docs.</div>
+  <div>Click <a href="{0}/gui">here</a> for user interface.</div>
 </html>"""
 
 
