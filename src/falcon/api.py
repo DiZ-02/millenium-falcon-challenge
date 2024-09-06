@@ -8,7 +8,7 @@ from starlette.responses import HTMLResponse
 
 from falcon import frontend
 from falcon.config import init
-from falcon.models import Communication, PathResponse
+from falcon.models import Communication, SafePath
 from falcon.path_service import get_service
 
 logging.basicConfig(level=getLogger("uvicorn").level)
@@ -39,5 +39,5 @@ def upload_communication(communication: Communication) -> Communication:
 
 # TODO: split /job/start and /job/status with BackgroundTask
 @app.post("/compute_odds", status_code=200)
-async def compute_odds() -> PathResponse:
+async def compute_odds() -> SafePath:
     return get_service().search_path()

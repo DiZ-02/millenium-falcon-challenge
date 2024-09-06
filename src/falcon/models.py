@@ -32,5 +32,5 @@ class Communication(BaseModel):
     bounty_hunters: list[BountyHunter]
 
 
-class PathResponse(BaseModel):
+class SafePath(BaseModel):
     odds: StrictFloat
