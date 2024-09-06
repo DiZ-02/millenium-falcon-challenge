@@ -2,7 +2,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Self
 
-from pydantic import BaseModel, PositiveFloat, PositiveInt, StrictStr
+from pydantic import BaseModel, PositiveInt, StrictFloat, StrictStr
 
 
 class Falcon(BaseModel):
@@ -33,4 +33,4 @@ class Communication(BaseModel):
 
 
 class PathResponse(BaseModel):
-    odds: PositiveFloat
+    odds: StrictFloat

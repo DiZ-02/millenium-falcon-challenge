@@ -33,10 +33,11 @@ def read_root(request: Request) -> HTMLResponse:
 
 @app.post("/communication", status_code=201)
 def upload_communication(communication: Communication) -> Communication:
-    get_service().add_weights(communication)
+    get_service().add_constraints(communication)
     return communication
 
 
+# TODO: split /job/start and /job/status with BackgroundTask
 @app.post("/compute_odds", status_code=200)
 async def compute_odds() -> PathResponse:
-    return await get_service().compute_odds()
+    return get_service().search_path()

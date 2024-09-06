@@ -14,11 +14,13 @@
 from __future__ import annotations
 
 import argparse
+import logging
 import sys
 from typing import Any
 
 from falcon import debug
 from falcon.config import init
+from falcon.path_service import get_service
 
 
 class _DebugInfo(argparse.Action):
@@ -55,7 +57,10 @@ def main(args: list[str] | None = None) -> int:
     Returns:
         An exit code.
     """
+    logging.basicConfig(level="DEBUG")
     parser = get_parser()
     opts = parser.parse_args(args=args)
     init(opts.cfg_file, opts.input_file)
+    response = get_service().search_path()
+    print(response.odds)
     return 0

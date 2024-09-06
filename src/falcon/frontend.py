@@ -17,9 +17,9 @@ def json_file_handler(event: events.UploadEventArguments, element: ContentElemen
     text = event.content.read().decode("utf-8", errors="replace")
     try:
         communication = Communication.model_validate_json(text)
-        formatted = json.dumps(communication.dict(), indent=4)
+        formatted = json.dumps(communication.model_dump(), indent=4)
         element.set_content(formatted)
-        get_service().add_weights(communication)
+        get_service().add_constraints(communication)
     except (json.decoder.JSONDecodeError, pydantic.ValidationError):
         logger.warning("Didn't manage to parse given file")
         element.set_content(text)

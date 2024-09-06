@@ -1,10 +1,10 @@
 import json
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import Mock, patch
 
 from fastapi.testclient import TestClient
 
 from falcon.api import HOME_RESPONSE_FMT
-from falcon.models import Communication
+from falcon.models import Communication, PathResponse
 from tests import FIXTURES_DIR
 
 
@@ -24,14 +24,15 @@ def test_upload_communication(mock_get_service: Mock, client: TestClient) -> Non
 
     response = client.post("/communication", json=json_input)
     assert response.json() == json_input
-    mock_service.add_weights.assert_called_once_with(argument)
+    mock_service.add_constraints.assert_called_once_with(argument)
 
 
 @patch("falcon.api.get_service")
 def test_compute_odds(mock_get_service: Mock, client: TestClient) -> None:
-    mock_get_service.return_value = mock_service = AsyncMock()
+    mock_get_service.return_value = mock_service = Mock()
+    mock_service.search_path.return_value = PathResponse(odds=1.0)
 
     response = client.post("/compute_odds")
     assert response.status_code == 200
     assert response.json().get("odds") == 1.0
-    mock_service.compute_odds.assert_called_once()
+    mock_service.search_path.assert_called_once()
