@@ -31,12 +31,13 @@ class PathService:
     SUCCESS_CHANCE = 1 - FAIL_CHANCE
 
     def __init__(self):
+        self.is_running = False
         self.max_total_weight, self.max_available_weight = 0, 0
         self.origin, self.destination = None, None
         self.nodes, self.graph, self.costs = set(), {}, {}
 
     # Adapters
-
+    # TODO: extract adapter into its own Job class
     def add_params(self, config: Falcon) -> None:
         """
         Add parameters for path search.
@@ -57,7 +58,7 @@ class PathService:
         # Add edges from a node to another node
         for route in routes:
             self.nodes |= {route.origin, route.destination}
-            # TODO: filter out edges with travel time > autonomy
+            # TODO: filter out edges with travel time > autonomy?
             self.graph.setdefault(route.origin, {})[route.destination] = route.travel_time
             self.graph.setdefault(route.destination, {})[route.origin] = route.travel_time
 
@@ -93,7 +94,7 @@ class PathService:
             raise ValueError("A graph is required to search for a path.")
         if self.origin not in self.graph:
             raise ValueError(f"{self.origin=} if not is the given graph.")
-        if not any(self.destination in ends for ends in self.graph.values()):
+        if self.destination not in self.graph:
             raise ValueError(f"{self.destination=} if not is the given graph.")
 
     def search_path(self) -> SafePath:
@@ -106,6 +107,7 @@ class PathService:
         Return the number of bad events encountered.
         """
 
+        # TODO: Wrap this function into a class, extract subfunctions, move nonlocal variables to instance level
         def get_cost_to_reach(destination: str, at: int) -> PathStats | None:
             best_stats = PathStats()
             for origin, weight in self.graph.get(destination, {}).items():
@@ -124,6 +126,7 @@ class PathService:
             # Prune if leading to a worse solution
             return best_stats if best_stats.cost < inf and best_stats < least_expensive_travel else None
 
+        self.is_running = True
         self._validate_graph()
         least_expensive_travel = PathStats()
         # For each day, it stores the destinations reachable on this day and the associated stats.
@@ -144,6 +147,7 @@ class PathService:
             least_expensive_destinations.append(destinations)
             if self.destination in destinations:
                 least_expensive_travel = min(least_expensive_travel, destinations[self.destination])
+        self.is_running = False
         return self.get_probability(least_expensive_travel.cost)
 
 

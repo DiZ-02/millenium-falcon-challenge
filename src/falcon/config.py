@@ -61,6 +61,7 @@ def init_config(cfg_path: str | Path) -> Falcon:
 
 def fetch_routes_from_db(routes_db: Path) -> list[Route]:
     # TODO: Extract this into a service
+    # TODO: Parse DB when creating job to avoid keeping it in memory?
     logger.info(f"Fetching routes from database {routes_db}")
     with sqlite3.connect(routes_db) as db:
         return [Route.from_list(row) for row in db.cursor().execute("SELECT * FROM routes").fetchall()]

@@ -11,7 +11,10 @@ from falcon.config import init
 from falcon.models import Communication, SafePath
 from falcon.path_service import get_service
 
+# Use level passed to uvicorn command as base level...
 logging.basicConfig(level=getLogger("uvicorn").level)
+# ...but keep uvicorn above debug because too verbose
+getLogger("uvicorn").setLevel(max(logging.INFO, getLogger("uvicorn").level))
 logger = getLogger(__name__)
 
 app = FastAPI()
