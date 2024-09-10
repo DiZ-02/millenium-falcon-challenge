@@ -22,3 +22,21 @@ If not available:
 ```bash
 bash scripts/setup.sh
 ```
+
+## Assumptions
+
+
+Functional assumptions:
+
+- Departure and arrival are in the given graph.
+- All travel times are strictly positive.
+- The planets in intercepted communication that are not in the given graph are ignored.
+
+
+Performance assumptions:
+
+This app focus is on performance.
+Data are stored in memory, so limits have been set on inputs:
+
+- autonomy < 4096
+- number of nodes < 2048

@@ -30,6 +30,9 @@ class PathService:
     FAIL_CHANCE = 0.1  # Taken from documentation
     SUCCESS_CHANCE = 1 - FAIL_CHANCE
 
+    MAX_AUTONOMY = 4096
+    MAX_NB_NODES = 2048
+
     def __init__(self):
         self.is_running = False
         self.max_total_weight, self.max_available_weight = 0, 0
@@ -46,6 +49,9 @@ class PathService:
         origin: Departure of the path.
         destination: Arrival of the path.
         """
+        if config.autonomy >= self.MAX_AUTONOMY:
+            raise ValueError(f"{config.autonomy=} must be less then {self.MAX_AUTONOMY}.")
+
         self.max_available_weight = config.autonomy
         self.origin = config.departure
         self.destination = config.arrival
@@ -61,6 +67,10 @@ class PathService:
             # TODO: filter out edges with travel time > autonomy?
             self.graph.setdefault(route.origin, {})[route.destination] = route.travel_time
             self.graph.setdefault(route.destination, {})[route.origin] = route.travel_time
+
+        number_of_nodes = len(self.nodes)
+        if number_of_nodes >= self.MAX_NB_NODES:
+            raise ValueError(f"{number_of_nodes=} must be less than {self.MAX_NB_NODES}.")
 
         # Add an edge from a node to itself to handle waiting action
         for node in self.nodes:

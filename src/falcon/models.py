@@ -6,7 +6,7 @@ from pydantic import BaseModel, PositiveInt, StrictFloat, StrictStr
 
 
 class Falcon(BaseModel):
-    autonomy: PositiveInt = 0
+    autonomy: PositiveInt = 1
     departure: StrictStr = "Tatooine"
     arrival: StrictStr = "Endor"
     routes_db: Path = Path("placeholder.db")
