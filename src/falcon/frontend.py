@@ -7,8 +7,8 @@ from fastapi import FastAPI
 from nicegui import app, events, ui
 from nicegui.events import ClickEventArguments
 
+from falcon.core import get_service
 from falcon.models import Communication
-from falcon.path_service import get_service
 
 logger = getLogger(__name__)
 
@@ -95,9 +95,10 @@ def init(fastapi_app: FastAPI) -> None:
                 def start_on_click(_: ClickEventArguments) -> None:
                     start_button.set_visibility(False)
                     result_element.set_visibility(True)
+                    service = get_service()
                     # TODO: Use run_cpu_bound for asynchronous processing
-                    result = get_service().search_path()
-                    result_label.set_text(f"{result.odds:.1%}")
+                    result = service.search_path()
+                    result_label.set_text(f"{service.get_odds(result).odds:.1%}")
 
                 start_button = ui.button("Start").props('size="xl" padding="xl" glossy')
                 start_button.bind_enabled_from(

@@ -20,7 +20,7 @@ from typing import Any
 
 from falcon import debug
 from falcon.config import init
-from falcon.path_service import get_service
+from falcon.core import get_service
 
 
 class _DebugInfo(argparse.Action):
@@ -60,7 +60,9 @@ def main(args: list[str] | None = None) -> int:
     logging.basicConfig(level="DEBUG")
     parser = get_parser()
     opts = parser.parse_args(args=args)
+    # TODO: Return a service/job for init
     init(opts.cfg_file, opts.input_file)
-    response = get_service().search_path()
-    print(response.odds)
+    service = get_service()
+    response = service.search_path()
+    print(service.get_odds(response).odds)
     return 0

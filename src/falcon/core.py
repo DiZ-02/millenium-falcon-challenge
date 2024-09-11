@@ -13,8 +13,8 @@ logger = getLogger(__name__)
 @dataclass(order=False)
 class PathStats:
     cost: float = inf
-    available_weight: float = 0
     total_weight: float = inf
+    available_weight: float = 0
 
     def __lt__(self: Self, other: Self) -> bool:
         if self.cost != other.cost:
@@ -87,15 +87,15 @@ class PathService:
         logger.info(f"{len(communication.bounty_hunters)} weights added.")
         return self.costs
 
-    def get_probability(self, wrong_events: float) -> SafePath:
-        """Returns the probability of success for a given number of wrong events.
+    def get_odds(self, stats: PathStats) -> SafePath:
+        """Returns the odds of success for a given path cost - aka. the number of wrong events.
 
         Success probability for a whole path is the product of the success probabilities for each edge:
         - 1 for a clear edge
         - 1-FAIL_CHANCE for an edge with a wrong event as wrong events share the same probability.
-        Thus, the global probability of success for a given path is determined by the number of occurring events.
+        Thus, the global probability of success for a given path is determined by the number of wrong events occured.
         """
-        return SafePath(odds=self.SUCCESS_CHANCE**wrong_events)
+        return SafePath(odds=self.SUCCESS_CHANCE**stats.cost)
 
     # Core logic
 
@@ -107,7 +107,7 @@ class PathService:
         if self.destination not in self.graph:
             raise ValueError(f"{self.destination=} if not is the given graph.")
 
-    def search_path(self) -> SafePath:
+    def search_path(self) -> PathStats:
         """
         Search for a path with the following criteria:
         - minimizing total cost,
@@ -128,24 +128,27 @@ class PathService:
                     if stats.available_weight >= weight:
                         new_stats = PathStats(
                             cost=stats.cost + int(at in self.costs.get(destination, {})),
-                            available_weight=stats.available_weight - weight,
                             total_weight=stats.total_weight + weight,
+                            available_weight=stats.available_weight - weight,
                         )
                         best_stats = min(best_stats, new_stats)
             # Return only if reaching this destination with given weight is possible
             # Prune if leading to a worse solution
             return best_stats if best_stats.cost < inf and best_stats < least_expensive_travel else None
 
-        self.is_running = True
         self._validate_graph()
+
+        self.is_running = True
+        logger.info(f"Searching for path from {self.origin} to {self.destination}...")
+
         least_expensive_travel = PathStats()
         # For each day, it stores the destinations reachable on this day and the associated stats.
         least_expensive_destinations: list[dict[str, PathStats]] = [
             {
                 self.origin: PathStats(
                     cost=int(0 in self.costs.get(self.origin, {})),
-                    available_weight=self.max_available_weight,
                     total_weight=0,
+                    available_weight=self.max_available_weight,
                 ),
             },
         ]
@@ -157,8 +160,9 @@ class PathService:
             least_expensive_destinations.append(destinations)
             if self.destination in destinations:
                 least_expensive_travel = min(least_expensive_travel, destinations[self.destination])
+        logger.info(f"Safest solution found: {least_expensive_travel}")
         self.is_running = False
-        return self.get_probability(least_expensive_travel.cost)
+        return least_expensive_travel
 
 
 def get_service() -> PathService:

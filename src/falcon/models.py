@@ -2,10 +2,12 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Self
 
-from pydantic import BaseModel, PositiveInt, StrictFloat, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, NonNegativeInt, PositiveInt, StrictFloat, StrictStr
 
 
 class Falcon(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     autonomy: PositiveInt = 1
     departure: StrictStr = "Tatooine"
     arrival: StrictStr = "Endor"
@@ -24,12 +26,14 @@ class Route(BaseModel):
 
 class BountyHunter(BaseModel):
     planet: StrictStr
-    day: PositiveInt
+    day: NonNegativeInt
 
 
 class Communication(BaseModel):
-    countdown: PositiveInt
-    bounty_hunters: list[BountyHunter]
+    model_config = ConfigDict(extra="forbid")
+
+    countdown: NonNegativeInt = 0
+    bounty_hunters: list[BountyHunter] = Field(default_factory=list)
 
 
 class SafePath(BaseModel):

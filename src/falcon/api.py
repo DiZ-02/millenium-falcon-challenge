@@ -8,8 +8,8 @@ from starlette.responses import HTMLResponse
 
 from falcon import frontend
 from falcon.config import init
+from falcon.core import get_service
 from falcon.models import Communication, SafePath
-from falcon.path_service import get_service
 
 # Use level passed to uvicorn command as base level...
 logging.basicConfig(level=getLogger("uvicorn").level)
@@ -18,7 +18,7 @@ getLogger("uvicorn").setLevel(max(logging.INFO, getLogger("uvicorn").level))
 logger = getLogger(__name__)
 
 app = FastAPI()
-config = init(os.environ.get("JSON_CFG_PATH", "placeholder"))
+config = init(os.environ.get("MILLENIUM_FALCON_CHALLENGE__JSON_CFG_PATH", "placeholder"))
 frontend.init(app)
 
 
@@ -44,4 +44,5 @@ def upload_communication(communication: Communication) -> Communication:
 # TODO: split /job/start and /job/status with BackgroundTask
 @app.post("/compute_odds", status_code=200)
 async def compute_odds() -> SafePath:
-    return get_service().search_path()
+    service = get_service()
+    return service.get_odds(service.search_path())

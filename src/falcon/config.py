@@ -1,17 +1,18 @@
 import sqlite3
+from collections.abc import Sequence
 from logging import getLogger
 from pathlib import Path
 
 from pydantic import BaseModel
 
-from falcon import DB_DIR, DB_PLACEHOLDER
+from falcon import DB_DIR, DB_PLACEHOLDER, PROJECT_DIR
+from falcon.core import get_service
 from falcon.models import Communication, Falcon, Route
-from falcon.path_service import get_service
 
 logger = getLogger(__name__)
 
 
-def search_file(filepath: Path, folders: list[Path]) -> Path:
+def search_file(filepath: Path, folders: Sequence[Path] = ()) -> Path:
     """Search for a file at a given Path, then in folder list in order."""
     if not filepath.exists():
         for folder in map(Path, folders):
@@ -27,25 +28,25 @@ def search_file(filepath: Path, folders: list[Path]) -> Path:
 
 
 def parse_file[M: BaseModel](  # type: ignore[valid-type]
-    filepath: str | Path,
+    filepath: Path,
     model: type[M],  # type: ignore[name-defined]
     default: M | None = None,  # type: ignore[name-defined]
 ) -> M | None:  # type: ignore[name-defined]
-    filepath, inst = Path(filepath), default
+    inst = default
     try:
         with filepath.open() as file:
             inst = model.model_validate_json(file.read())
     except Exception as error:  # noqa: BLE001
         msg = f"Didn't manage to read given file: {filepath}."
-        msg += f"\nUnexpected {error=}"
+        msg += f"\nUnexpected error: {error}"
         if default is not None:
-            msg += f"Using default value {default}."
+            msg += f"\nUsing default value: {default}."
         logger.warning(msg)
     return inst
 
 
 def init_config(cfg_path: str | Path) -> Falcon:
-    cfg_path = Path(cfg_path)
+    cfg_path = search_file(Path(cfg_path), [PROJECT_DIR])
     cfg: Falcon = parse_file(cfg_path, Falcon, Falcon())  # type: ignore[assignment]
 
     try:
@@ -68,6 +69,7 @@ def fetch_routes_from_db(routes_db: Path) -> list[Route]:
 
 
 def init(cfg_path: str | Path, input_file: str | Path | None = None) -> Falcon:
+    # TODO: return service instance instead of making it global
     cfg_path = Path(cfg_path)
     config = init_config(cfg_path)
     routes = fetch_routes_from_db(config.routes_db)

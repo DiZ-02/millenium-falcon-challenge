@@ -4,6 +4,7 @@ from unittest.mock import Mock, patch
 from fastapi.testclient import TestClient
 
 from falcon.api import HOME_RESPONSE_FMT
+from falcon.core import PathStats
 from falcon.models import Communication, SafePath
 from tests import FIXTURES_DIR
 
@@ -18,7 +19,7 @@ def test_read_root(client: TestClient) -> None:
 @patch("falcon.api.get_service")
 def test_upload_communication(mock_get_service: Mock, client: TestClient) -> None:
     mock_get_service.return_value = mock_service = Mock()
-    argument = Communication(countdown=1, bounty_hunters=[])
+    argument = Communication(countdown=0, bounty_hunters=[])
     with (FIXTURES_DIR / "empire.json").open() as input_file:
         json_input = json.loads(input_file.read())
 
@@ -30,7 +31,8 @@ def test_upload_communication(mock_get_service: Mock, client: TestClient) -> Non
 @patch("falcon.api.get_service")
 def test_compute_odds(mock_get_service: Mock, client: TestClient) -> None:
     mock_get_service.return_value = mock_service = Mock()
-    mock_service.search_path.return_value = SafePath(odds=1.0)
+    mock_service.search_path.return_value = PathStats()
+    mock_service.get_odds.return_value = SafePath(odds=1.0)
 
     response = client.post("/compute_odds")
     assert response.status_code == 200
