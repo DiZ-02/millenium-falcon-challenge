@@ -10,6 +10,7 @@ htmlcov/
 pip-wheel-metadata/
 .pytest_cache/
 .mypy_cache/
+.ruff_cache/
 site/
 pdm.lock
 pdm.toml
