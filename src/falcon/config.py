@@ -1,4 +1,3 @@
-import sqlite3
 from collections.abc import Sequence
 from logging import getLogger
 from pathlib import Path
@@ -6,8 +5,8 @@ from pathlib import Path
 from pydantic import BaseModel
 
 from falcon import DB_DIR, DB_PLACEHOLDER, PROJECT_DIR
-from falcon.core import get_service
-from falcon.models import Communication, Falcon, Route
+from falcon.adapter import Costs, Job, Nodes, Weights
+from falcon.models import Communication, Falcon
 
 logger = getLogger(__name__)
 
@@ -30,24 +29,25 @@ def search_file(filepath: Path, folders: Sequence[Path] = ()) -> Path:
 def parse_file[M: BaseModel](  # type: ignore[valid-type]
     filepath: Path,
     model: type[M],  # type: ignore[name-defined]
-    default: M | None = None,  # type: ignore[name-defined]
 ) -> M | None:  # type: ignore[name-defined]
-    inst = default
+    inst = None
     try:
         with filepath.open() as file:
             inst = model.model_validate_json(file.read())
     except Exception as error:  # noqa: BLE001
-        msg = f"Didn't manage to read given file: {filepath}."
-        msg += f"\nUnexpected error: {error}"
-        if default is not None:
-            msg += f"\nUsing default value: {default}."
-        logger.warning(msg)
+        logger.warning(f"Didn't manage to read given file: {filepath}.\nUnexpected error: {error}")
     return inst
 
 
 def init_config(cfg_path: str | Path) -> Falcon:
-    cfg_path = search_file(Path(cfg_path), [PROJECT_DIR])
-    cfg: Falcon = parse_file(cfg_path, Falcon, Falcon())  # type: ignore[assignment]
+    try:
+        cfg_path = search_file(Path(cfg_path), [PROJECT_DIR])
+        cfg: Falcon = parse_file(cfg_path, Falcon)  # type: ignore[assignment]
+    except FileNotFoundError:
+        logger.warning(
+            f"Config file not found: {cfg_path}.\nUsing default config...",
+        )
+        cfg = Falcon()
 
     try:
         cfg.routes_db = search_file(cfg.routes_db, [cfg_path.parent, DB_DIR])
@@ -60,31 +60,22 @@ def init_config(cfg_path: str | Path) -> Falcon:
     return cfg
 
 
-def fetch_routes_from_db(routes_db: Path) -> list[Route]:
-    # TODO: Extract this into a service
-    # TODO: Parse DB when creating job to avoid keeping it in memory?
-    logger.info(f"Fetching routes from database {routes_db}")
-    with sqlite3.connect(routes_db) as db:
-        return [Route.from_list(row) for row in db.cursor().execute("SELECT * FROM routes").fetchall()]
-
-
-def init(cfg_path: str | Path, input_file: str | Path | None = None) -> Falcon:
-    # TODO: return service instance instead of making it global
+def init(cfg_path: str | Path, input_file: str | Path | None = None) -> tuple[Job, Nodes, Weights, Costs | None]:
     cfg_path = Path(cfg_path)
     config = init_config(cfg_path)
-    routes = fetch_routes_from_db(config.routes_db)
-    service = get_service()
-    service.add_params(config)
-    service.add_graph(routes)
+
+    job = Job(config)
+    nodes, edges = job.generate_graph()
+    costs = None
 
     if input_file:
         try:
             input_file = Path(input_file)
             input_file = search_file(input_file, [cfg_path.parent, DB_DIR])
             if input_ := parse_file(input_file, Communication):
-                service.add_constraints(input_)
+                costs = job.add_constraints(input_)
         except FileNotFoundError:
             # TODO: Add placeholder for input file to demo the app?
             logger.warning(f"Input file not found: {input_file}.")
 
-    return config
+    return job, nodes, edges, costs

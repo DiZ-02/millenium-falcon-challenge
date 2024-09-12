@@ -1,4 +1,5 @@
 import json
+from copy import deepcopy
 from enum import StrEnum
 from logging import getLogger
 
@@ -7,7 +8,7 @@ from fastapi import FastAPI
 from nicegui import app, events, ui
 from nicegui.events import ClickEventArguments
 
-from falcon.core import get_service
+from falcon.core import PathService
 from falcon.models import Communication
 
 logger = getLogger(__name__)
@@ -58,7 +59,10 @@ class FilePicker:
             formatted = json.dumps(communication.model_dump(), indent=4)
             self.file_preview.set_content(formatted)
             self.set_status(FilePickerStatus.positive)
-            get_service().add_constraints(communication)
+
+            user_job = deepcopy(app.job)
+            app.storage.user["costs"] = user_job.add_constraints(communication)
+            app.storage.user["job"] = user_job
         except (json.decoder.JSONDecodeError, pydantic.ValidationError):
             logger.warning("Didn't manage to parse given file")
             self.file_preview.set_content(text)
@@ -95,10 +99,10 @@ def init(fastapi_app: FastAPI) -> None:
                 def start_on_click(_: ClickEventArguments) -> None:
                     start_button.set_visibility(False)
                     result_element.set_visibility(True)
-                    service = get_service()
+                    service = PathService(app.storage.user["job"], app.nodes, app.weights, app.storage.user["costs"])
                     # TODO: Use run_cpu_bound for asynchronous processing
                     result = service.search_path()
-                    result_label.set_text(f"{service.get_odds(result).odds:.1%}")
+                    result_label.set_text(f"{app.storage.user["job"].get_odds(result).odds:.1%}")
 
                 start_button = ui.button("Start").props('size="xl" padding="xl" glossy')
                 start_button.bind_enabled_from(
@@ -115,7 +119,7 @@ def init(fastapi_app: FastAPI) -> None:
 
                 with ui.column().classes("items-center") as result_element:
                     ui.label("Your chance to reach destination safely is:")
-                    result_label = ui.label("- %").props('size="xl"')
+                    result_label = ui.label("--.-%").props('size="xl"')
                     ui.button("Reset").on_click(reset_on_click)
                     result_element.set_visibility(False)
 

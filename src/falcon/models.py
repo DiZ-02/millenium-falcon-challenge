@@ -1,6 +1,4 @@
-from collections.abc import Sequence
 from pathlib import Path
-from typing import Self
 
 from pydantic import BaseModel, ConfigDict, Field, NonNegativeInt, PositiveInt, StrictFloat, StrictStr
 
@@ -19,14 +17,10 @@ class Route(BaseModel):
     destination: StrictStr
     travel_time: PositiveInt
 
-    @classmethod
-    def from_list(cls, tpl: Sequence) -> Self:
-        return cls(**dict(zip(cls.model_fields.keys(), tpl, strict=False)))
-
 
 class BountyHunter(BaseModel):
     planet: StrictStr
-    day: NonNegativeInt
+    day: PositiveInt
 
 
 class Communication(BaseModel):

@@ -11,6 +11,7 @@ from falcon.debug import _interpreter_name_version, get_version
 
 
 @patch("falcon.cli.init")
+@patch("falcon.cli.PathService", new=Mock())
 def test_main(mock_init: Mock) -> None:
     """Basic CLI test."""
     with patch("falcon.cli.get_service"):
