@@ -1,3 +1,4 @@
+from collections import defaultdict
 from collections.abc import Sequence
 from logging import getLogger
 from pathlib import Path
@@ -40,8 +41,9 @@ def parse_file[M: BaseModel](  # type: ignore[valid-type]
 
 
 def init_config(cfg_path: str | Path) -> Falcon:
+    cfg_path = Path(cfg_path)
     try:
-        cfg_path = search_file(Path(cfg_path), [PROJECT_DIR])
+        cfg_path = search_file(cfg_path, [PROJECT_DIR])
         cfg: Falcon = parse_file(cfg_path, Falcon)  # type: ignore[assignment]
     except FileNotFoundError:
         logger.warning(
@@ -60,13 +62,13 @@ def init_config(cfg_path: str | Path) -> Falcon:
     return cfg
 
 
-def init(cfg_path: str | Path, input_file: str | Path | None = None) -> tuple[Job, Nodes, Weights, Costs | None]:
+def init(cfg_path: str | Path, input_file: str | Path | None = None) -> tuple[Job, Nodes, Weights, Costs]:
     cfg_path = Path(cfg_path)
     config = init_config(cfg_path)
 
-    job = Job(config)
+    job = Job.from_config(config)
     nodes, edges = job.generate_graph()
-    costs = None
+    costs: Costs = defaultdict(set)
 
     if input_file:
         try:

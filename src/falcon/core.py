@@ -1,28 +1,10 @@
-from dataclasses import dataclass, replace
-from functools import total_ordering
+from dataclasses import replace
 from logging import getLogger
 from math import inf
-from typing import Self
 
-from falcon.adapter import Costs, Job, Nodes, Weights
+from falcon.adapter import Costs, Job, Nodes, PathStats, Weights
 
 logger = getLogger(__name__)
-
-
-@total_ordering
-@dataclass(order=False)
-class PathStats:
-    cost: float = inf
-    total_weight: float = inf
-    available_weight: float = 0
-
-    def __lt__(self: Self, other: Self) -> bool:
-        if self.cost != other.cost:
-            return self.cost < other.cost
-        if self.total_weight != other.total_weight:
-            return self.total_weight < other.total_weight
-        # /!\ Reverse order here: keep the record maximizing the available weight for next move
-        return other.available_weight < self.available_weight
 
 
 class PathService:

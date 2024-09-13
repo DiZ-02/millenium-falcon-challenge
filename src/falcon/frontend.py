@@ -1,15 +1,18 @@
 import json
-from copy import deepcopy
+from collections import defaultdict
 from enum import StrEnum
 from logging import getLogger
 
 import pydantic
 from fastapi import FastAPI
+from fastapi.encoders import jsonable_encoder
 from nicegui import app, events, ui
 from nicegui.events import ClickEventArguments
 
+from falcon.adapter import Job
 from falcon.core import PathService
 from falcon.models import Communication
+from falcon.store import get_store
 
 logger = getLogger(__name__)
 
@@ -33,7 +36,7 @@ class FilePicker:
             )
             .props("accept=.json")
             .classes("w-full h-full col-span-2 lg:col-span-1")
-            .on("removed", lambda e: self.set_status(FilePickerStatus.info))
+            .on("removed", lambda e: self.reset())
             .on("failed", lambda e: self.set_status(FilePickerStatus.negative))
         )
         with ui.column().classes("size-full col-span-2 lg:col-span-1"):
@@ -60,9 +63,10 @@ class FilePicker:
             self.file_preview.set_content(formatted)
             self.set_status(FilePickerStatus.positive)
 
-            user_job = deepcopy(app.job)
-            app.storage.user["costs"] = user_job.add_constraints(communication)
-            app.storage.user["job"] = user_job
+            store = get_store()
+            user_job = store.job.copy()
+            app.storage.user["costs"] = jsonable_encoder(user_job.add_constraints(communication))
+            app.storage.user["job"] = jsonable_encoder(user_job.model_dump())
         except (json.decoder.JSONDecodeError, pydantic.ValidationError):
             logger.warning("Didn't manage to parse given file")
             self.file_preview.set_content(text)
@@ -99,10 +103,14 @@ def init(fastapi_app: FastAPI) -> None:
                 def start_on_click(_: ClickEventArguments) -> None:
                     start_button.set_visibility(False)
                     result_element.set_visibility(True)
-                    service = PathService(app.storage.user["job"], app.nodes, app.weights, app.storage.user["costs"])
+                    store = get_store()
+                    job = Job.model_validate(app.storage.user["job"])
+                    costs = defaultdict(set, app.storage.user["costs"])
+                    service = PathService(job, store.nodes, store.weights, costs)
                     # TODO: Use run_cpu_bound for asynchronous processing
-                    result = service.search_path()
-                    result_label.set_text(f"{app.storage.user["job"].get_odds(result).odds:.1%}")
+                    job.result = service.search_path()
+                    result_label.set_text(f"{job.get_odds().odds:.1%}")
+                    app.storage.user["job"] = jsonable_encoder(job.model_dump())
 
                 start_button = ui.button("Start").props('size="xl" padding="xl" glossy')
                 start_button.bind_enabled_from(

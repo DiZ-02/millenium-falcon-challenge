@@ -1,4 +1,7 @@
 {
   "countdown": 0,
-  "bounty_hunters": []
+  "bounty_hunters": [{
+    "planet" : "Tatooine",
+    "day": 0
+  }]
 }

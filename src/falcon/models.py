@@ -20,7 +20,7 @@ class Route(BaseModel):
 
 class BountyHunter(BaseModel):
     planet: StrictStr
-    day: PositiveInt
+    day: NonNegativeInt
 
 
 class Communication(BaseModel):

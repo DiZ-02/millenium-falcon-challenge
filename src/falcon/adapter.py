@@ -1,50 +1,81 @@
 from collections import defaultdict
+from dataclasses import dataclass
+from functools import total_ordering
 from logging import getLogger
-from typing import TYPE_CHECKING
+from math import inf
+from pathlib import Path as FilePath
+from typing import ClassVar, Self
+
+from pydantic import BaseModel
 
 from falcon.db import DbService
 from falcon.models import Communication, Falcon, SafePath
 
-if TYPE_CHECKING:
-    from falcon.core import PathStats
-
 logger = getLogger(__name__)
 
 Nodes = set[str]
-Weights = dict[str, dict[str, int]]
-Costs = dict[str, set[int]]
+Weights = defaultdict[str, dict[str, int]]
+Costs = defaultdict[str, set[int]]
 
 
-class Job:
+@total_ordering
+@dataclass(order=False)
+class PathStats:
+    cost: float = inf
+    total_weight: float = inf
+    available_weight: float = 0
+
+    def __lt__(self: Self, other: Self) -> bool:
+        if self.cost != other.cost:
+            return self.cost < other.cost
+        if self.total_weight != other.total_weight:
+            return self.total_weight < other.total_weight
+        # /!\ Reverse order here: keep the record maximizing the available weight for next move
+        return other.available_weight < self.available_weight
+
+
+class Job(BaseModel):
     # Fixed parameters for path finding service
-    WAITING_ACTION_WEIGHT = 1
-    FAIL_CHANCE = 0.1  # Taken from documentation
-    SUCCESS_CHANCE = 1 - FAIL_CHANCE
+    WAITING_ACTION_WEIGHT: ClassVar[int] = 1
+    FAIL_CHANCE: ClassVar[float] = 0.1  # Taken from documentation
+    SUCCESS_CHANCE: ClassVar[float] = 1 - FAIL_CHANCE
 
     # Performance upper bounds
-    MAX_AUTONOMY = 4096
-    MAX_NB_NODES = 2048
+    MAX_AUTONOMY: ClassVar[int] = 4096
+    MAX_NB_NODES: ClassVar[int] = 2048
 
-    def __init__(self, config: Falcon) -> None:
+    max_available_weight: int
+    max_total_weight: int = 0
+
+    origin: str
+    destination: str
+
+    routes_db: FilePath
+    result: PathStats | None = None
+
+    # TODO: Add ID and status for API and GUI
+
+    @classmethod
+    def from_config(cls, config: Falcon) -> Self:
         """
         Add parameters from configuration file.
 
-        max_available_weight: Maximum weight available to travel on one edge.
-        origin: Departure of the path.
-        destination: Arrival of the path.
+        autonomy: Maximum weight available to travel on one edge.
+        departure: origin of the path.
+        arrival: destination of the path.
+        routes_db: Path to the DB file.
         """
-        # TODO: Add ID and status for API and GUI
-        self.max_total_weight = 0
-        self.result: PathStats | None = None
+        if config.autonomy >= cls.MAX_AUTONOMY:
+            raise ValueError(f"{config.autonomy=} must be less then {cls.MAX_AUTONOMY}.")
 
-        if config.autonomy >= self.MAX_AUTONOMY:
-            raise ValueError(f"{config.autonomy=} must be less then {self.MAX_AUTONOMY}.")
+        logger.info(f"Parameters loaded: {config}")
 
-        self.max_available_weight = config.autonomy
-        self.origin, self.destination = config.departure, config.arrival
-        logger.info(f"Parameters loaded: {self.origin=}, {self.destination=}, {self.max_available_weight=}")
-
-        self.routes_db = config.routes_db
+        return cls(
+            origin=config.departure,
+            destination=config.arrival,
+            max_available_weight=config.autonomy,
+            routes_db=config.routes_db,
+        )
 
     def generate_graph(self) -> tuple[Nodes, Weights]:
         db_service = DbService(self.routes_db)
@@ -69,7 +100,7 @@ class Job:
             edges[route.origin][route.destination] = route.travel_time
             edges[route.destination][route.origin] = route.travel_time
 
-        logger.info(f"Fetched {number_of_nodes} nodes and {number_of_edges} from db.")
+        logger.info(f"Fetched {number_of_nodes} nodes and {number_of_edges} edges from db.")
         return nodes, edges
 
     def add_constraints(self, communication: Communication) -> Costs:

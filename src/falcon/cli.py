@@ -61,9 +61,7 @@ def main(args: list[str] | None = None) -> int:
     parser = get_parser()
     opts = parser.parse_args(args=args)
     job, nodes, weights, costs = init(opts.cfg_file, opts.input_file)
-    if costs is None:
-        raise ValueError("Please upload a valid communication before.")
     service = PathService(job, nodes, weights, costs)
-    service.search_path()
+    job.result = service.search_path()
     print(job.get_odds().odds)
     return 0

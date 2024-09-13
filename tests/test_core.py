@@ -1,7 +1,7 @@
 import dataclasses
 import random
 
-from falcon.core import PathStats
+from falcon.adapter import PathStats
 
 
 def test_path_stats_order() -> None:

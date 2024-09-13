@@ -8,15 +8,18 @@ import pytest
 
 from falcon import cli, debug
 from falcon.debug import _interpreter_name_version, get_version
+from tests import FIXTURES_DIR
 
 
-@patch("falcon.cli.init")
-@patch("falcon.cli.PathService", new=Mock())
-def test_main(mock_init: Mock) -> None:
-    """Basic CLI test."""
-    with patch("falcon.cli.get_service"):
-        assert cli.main(["config-no_db.json", "empire.json"]) == 0
-    mock_init.assert_called_once_with("config-no_db.json", "empire.json")
+def test_main(capsys: pytest.CaptureFixture) -> None:
+    """Basic CLI test.
+
+    Parameters:
+        capsys: Pytest fixture to capture output.
+    """
+    assert cli.main([str(FIXTURES_DIR / "config.json"), str(FIXTURES_DIR / "empire.json")]) == 0
+    captured = capsys.readouterr()
+    assert "0.0" in captured.out
 
 
 def test_show_help(capsys: pytest.CaptureFixture) -> None:

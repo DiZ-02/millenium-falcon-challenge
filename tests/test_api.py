@@ -3,9 +3,10 @@ from unittest.mock import Mock, patch
 
 from fastapi.testclient import TestClient
 
+from falcon.adapter import PathStats
 from falcon.api import HOME_RESPONSE_FMT
-from falcon.core import PathStats
-from falcon.models import Communication, SafePath
+from falcon.models import SafePath
+from falcon.store import MemoryStore
 from tests import FIXTURES_DIR
 
 
@@ -16,25 +17,20 @@ def test_read_root(client: TestClient) -> None:
     assert client.get(domain + endpoint).text == body
 
 
-@patch("falcon.api.get_service")
-def test_upload_communication(mock_get_service: Mock, client: TestClient) -> None:
-    mock_get_service.return_value = mock_service = Mock()
-    argument = Communication(countdown=0, bounty_hunters=[])
+def test_upload_communication(store: MemoryStore, client: TestClient) -> None:
     with (FIXTURES_DIR / "empire.json").open() as input_file:
         json_input = json.loads(input_file.read())
 
     response = client.post("/communication", json=json_input)
+    assert store.costs is not None
     assert response.json() == json_input
-    mock_service.add_constraints.assert_called_once_with(argument)
 
 
-@patch("falcon.api.get_service")
-def test_compute_odds(mock_get_service: Mock, client: TestClient) -> None:
-    mock_get_service.return_value = mock_service = Mock()
-    mock_service.search_path.return_value = PathStats()
-    mock_service.get_odds.return_value = SafePath(odds=1.0)
+@patch("falcon.api.PathService")
+def test_compute_odds(mock_path_service: Mock, client: TestClient) -> None:
+    mock_path_service.return_value.search_path.return_value = PathStats(cost=1, total_weight=0, available_weight=0)
 
     response = client.post("/compute_odds")
+    mock_path_service.return_value.search_path.assert_called_once()
     assert response.status_code == 200
-    assert response.json().get("odds") == 1.0
-    mock_service.search_path.assert_called_once()
+    assert response.json() == SafePath(odds=0.9).model_dump()
