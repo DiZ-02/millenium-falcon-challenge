@@ -6,7 +6,6 @@ import pytest
 from falcon import cli
 
 
-@pytest.mark.skip
 def test_search_path_on_examples(
     examples: tuple[Path, Path, Path],
     capsys: pytest.CaptureFixture,

@@ -2,8 +2,9 @@ from collections import defaultdict
 from collections.abc import Sequence
 from logging import getLogger
 from pathlib import Path
+from typing import TypeVar
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from falcon import DB_DIR, DB_PLACEHOLDER, PROJECT_DIR
 from falcon.adapter import Costs, Job, Nodes, Weights
@@ -27,15 +28,15 @@ def search_file(filepath: Path, folders: Sequence[Path] = ()) -> Path:
     raise FileNotFoundError
 
 
-def parse_file[M: BaseModel](  # type: ignore[valid-type]
-    filepath: Path,
-    model: type[M],  # type: ignore[name-defined]
-) -> M | None:  # type: ignore[name-defined]
+M = TypeVar("M", bound=BaseModel)
+
+
+def parse_file(filepath: Path, model: type[M]) -> M | None:
     inst = None
     try:
         with filepath.open() as file:
-            inst = model.model_validate_json(file.read())
-    except Exception as error:  # noqa: BLE001
+            inst = model.model_validate_json(file.read(), context={"extra": "forbid"})
+    except (FileNotFoundError, ValidationError) as error:
         logger.warning(f"Didn't manage to read given file: {filepath}.\nUnexpected error: {error}")
     return inst
 

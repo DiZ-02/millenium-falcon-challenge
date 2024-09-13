@@ -31,8 +31,6 @@ dependencies = [
     "fastapi>=0.112.2",
     "uvicorn>=0.30.6",
     "nicegui>=1.4.10",
-    # Fix vulnerability PVE-2024-99777
-#    "markdown2>=2.4.11",
 ]
 
 [project.urls]
@@ -89,6 +87,7 @@ tests = [
     "pytest-cov>=4.1",
     "pytest-randomly>=3.15",
     "pytest-xdist>=3.3",
+    "pytest-env>=1.1.4",
 ]
 typing = [
     "mypy>=1.5",
@@ -113,5 +112,5 @@ markdown2 = ">=2.4.11"
 [tool.pdm.scripts]
 _.env_file = ".env"
 #_.working_dir = "src"
-dev.cmd = "uvicorn falcon.api:app --reload --log-level info --port 8000"
+dev.cmd = "uvicorn falcon.api:app --reload --log-level debug --port 8000"
 prod.cmd = "uvicorn falcon.api:app --workers 1 --log-level info --port 80"

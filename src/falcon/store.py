@@ -1,5 +1,4 @@
-from collections import defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from falcon.adapter import Costs, Job, Nodes, Weights
 
@@ -10,7 +9,7 @@ class MemoryStore:
     job: Job
     nodes: Nodes
     weights: Weights
-    costs: Costs = field(default_factory=lambda: defaultdict(set))
+    costs: Costs
 
 
 _store: MemoryStore | None = None
@@ -30,13 +29,4 @@ def get_store() -> MemoryStore:
 def del_store() -> None:
     global _store  # noqa: PLW0603
     del _store
-
-
-# def get_store() -> Generator[MemoryStore]:
-#     global _store
-#     job, nodes, weights, costs = init(
-#         os.environ.get("MILLENIUM_FALCON_CHALLENGE__JSON_CFG_PATH", "placeholder"),
-#     )
-#     _store = MemoryStore(job, nodes, weights, costs)
-#     yield _store
-#     del _store
+    _store = None

@@ -137,3 +137,6 @@ def init(fastapi_app: FastAPI) -> None:
         storage_secret="pick your private secret here",  # noqa: S106
         # NOTE setting a secret is optional but allows for persistent storage per user
     )
+
+
+# TODO: Add unit tests for frontend

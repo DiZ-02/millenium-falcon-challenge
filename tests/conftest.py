@@ -1,4 +1,5 @@
 """Configuration for the pytest test suite."""
+
 from collections.abc import Generator
 from pathlib import Path
 

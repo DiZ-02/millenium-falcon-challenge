@@ -1,13 +1,29 @@
 import json
+from collections import defaultdict
 from unittest.mock import Mock, patch
 
+import pytest
 from fastapi.testclient import TestClient
 
 from falcon.adapter import PathStats
-from falcon.api import HOME_RESPONSE_FMT
+from falcon.api import HOME_RESPONSE_FMT, app
 from falcon.models import SafePath
-from falcon.store import MemoryStore
+from falcon.store import MemoryStore, get_store
 from tests import FIXTURES_DIR
+
+
+def test_lifespan() -> None:
+    with pytest.raises(ValueError, match="Set store before accessing it."):
+        get_store()
+    with TestClient(app):
+        store = get_store()
+        assert store is not None
+        assert store.job is not None
+        assert store.nodes is not None
+        assert store.weights is not None
+        assert store.costs == defaultdict(set)
+    with pytest.raises(ValueError, match="Set store before accessing it."):
+        get_store()
 
 
 def test_read_root(client: TestClient) -> None:
