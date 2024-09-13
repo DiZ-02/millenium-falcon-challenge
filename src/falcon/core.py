@@ -64,6 +64,8 @@ class PathService:
                 ),
             },
         )
+
+        # TODO: Use vectorized arrays of numpy to boost performance of this algorithm.
         for day in range(1, self.job.max_total_weight + 1):
             destinations = {}
             for node in self.nodes:

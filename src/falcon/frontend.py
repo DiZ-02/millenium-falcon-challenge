@@ -119,9 +119,11 @@ def init(fastapi_app: FastAPI) -> None:
                     backward=lambda status: status == FilePickerStatus.positive,
                 ).on_click(start_on_click)
 
+                # TODO: Add a progress bar using multiprocessing.Queue for safe communication
+
                 def reset_on_click(_: ClickEventArguments) -> None:
                     file_picker.reset()
-                    # TODO: bind visibility on PathService.is_running without calling get_service for performance
+                    # TODO: bind visibility on PathService status.
                     result_element.set_visibility(False)
                     start_button.set_visibility(True)
 

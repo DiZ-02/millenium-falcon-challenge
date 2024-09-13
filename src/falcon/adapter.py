@@ -13,6 +13,7 @@ from falcon.models import Communication, Falcon, SafePath
 
 logger = getLogger(__name__)
 
+# TODO: Use more lightweight structures such as array.array.
 Nodes = set[str]
 Weights = defaultdict[str, dict[str, int]]
 Costs = defaultdict[str, set[int]]

@@ -23,6 +23,45 @@ If not available:
 bash scripts/setup.sh
 ```
 
+## Usage
+
+Be sure to be in the right virtual env.
+
+```bash
+cd project-dir
+eval $(pdm venv activate)
+```
+
+### Standalone CLI
+
+Run the CLI with:
+
+```bash
+give-me-the-odds cfg_file input_file
+```
+
+More help with:
+
+```bash
+give-me-the-odds -h
+```
+
+### App
+
+Run the application with:
+
+```bash
+pdm run [dev|prod]
+```
+
+*Change port to 8080 if you launched the prod config.*
+
+Application is now accessible [here](http://127.0.0.1:8000).
+
+You can test the **API** using Swagger [here](http://127.0.0.1:8000/docs).
+
+Or you can go to the **GUI** [here](http://127.0.0.1:8000/gui/).
+
 ## Assumptions
 
 
@@ -40,3 +79,14 @@ Data are stored in memory, so limits have been set on inputs:
 
 - autonomy < 4096
 - number of nodes < 2048
+
+
+## Improvements
+
+All improvements are in code base under `# TODO` sections at the relevant places.
+Most notable ones are to:
+
+- use numpy to increase performances.
+- use more lightweight structures and weakref to spare memory.
+- implement front end tests.
+- create the Dockerfile to deploy the project on Gitpod.
