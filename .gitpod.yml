@@ -6,8 +6,9 @@ image:
   file: .gitpod.dockerfile
 
 ports:
-- port: 8000
+- port: 8080
   onOpen: notify
 
 tasks:
 - init: make setup
+  command: pdm run prod
