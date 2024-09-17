@@ -11,6 +11,8 @@ Developer Technical Test @ Dataiku
 
 ## Installation
 
+*Please download [Python](https://www.python.org/downloads/) if not already installed on your system.*
+
 With `make`:
 
 ```bash
@@ -54,13 +56,13 @@ Run the application with:
 pdm run [dev|prod]
 ```
 
-*Change port to 8080 if you launched the prod config.*
+*Change port to 8000 if you launched the dev config.*
 
-Application is now accessible [here](http://127.0.0.1:8000).
+Application is now accessible [here](http://127.0.0.1:8080).
 
-You can test the **API** using Swagger [here](http://127.0.0.1:8000/docs).
+You can test the **API** using Swagger [here](http://127.0.0.1:8080/docs).
 
-Or you can go to the **GUI** [here](http://127.0.0.1:8000/gui/).
+Or you can go to the **GUI** [here](http://127.0.0.1:8080/gui/).
 
 ## Assumptions
 

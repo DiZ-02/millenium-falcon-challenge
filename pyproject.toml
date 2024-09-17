@@ -101,7 +101,7 @@ security = [
 [tool.pdm.resolution]
 # Uncomment the line below if orjson is not available in your system.
 # Nicegui has a fallback on json builtin module.
-excludes = ["orjson"]
+# excludes = ["orjson"]
 
 [tool.pdm.resolution.overrides]
 # Nicegui will lift this dependency in 2.0.
