@@ -1,4 +1,5 @@
 import json
+import os
 from collections import defaultdict
 from unittest.mock import Mock, patch
 
@@ -13,6 +14,8 @@ from tests import FIXTURES_DIR
 
 
 def test_lifespan() -> None:
+    os.environ["MILLENIUM_FALCON_CHALLENGE__JSON_CFG_PATH"] = str(FIXTURES_DIR / "config.json")
+
     with pytest.raises(ValueError, match="Set store before accessing it."):
         get_store()
     with TestClient(app):
